@@ -2,6 +2,20 @@ from typing import Dict, Any, Optional
 from .config import QIAN_TO_GRAM, STANDARD_WEIGHT, ADULT_AGE, ELDERLY_AGE
 
 
+UNIT_NORMALIZE_MAP = {
+    "錢": "钱",
+    "錢重": "钱",
+    "克": "克",
+    "公克": "克",
+    "g": "克",
+    "G": "克",
+}
+
+
+def normalize_unit(unit: str) -> str:
+    return UNIT_NORMALIZE_MAP.get(unit, unit)
+
+
 def qian_to_gram(qian: float) -> float:
     return round(qian * QIAN_TO_GRAM, 2)
 
@@ -11,11 +25,13 @@ def gram_to_qian(gram: float) -> float:
 
 
 def convert_dose(dose: float, from_unit: str, to_unit: str) -> float:
-    if from_unit == to_unit:
+    from_unit_norm = normalize_unit(from_unit)
+    to_unit_norm = normalize_unit(to_unit)
+    if from_unit_norm == to_unit_norm:
         return dose
-    if from_unit == "钱" and to_unit == "克":
+    if from_unit_norm == "钱" and to_unit_norm == "克":
         return qian_to_gram(dose)
-    if from_unit == "克" and to_unit == "钱":
+    if from_unit_norm == "克" and to_unit_norm == "钱":
         return gram_to_qian(dose)
     return dose
 

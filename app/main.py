@@ -62,6 +62,21 @@ class CaseFeedbackRequest(BaseModel):
     feedback: str
 
 
+class NormalizeRequest(BaseModel):
+    symptoms: List[str] = Field(description="待归一化的症状列表")
+
+
+class DoseConvertRequest(BaseModel):
+    dose: float = Field(description="原始剂量")
+    from_unit: str = Field(description="原始单位：克/钱/錢")
+    to_unit: str = Field(description="目标单位：克/钱/錢")
+
+
+class FormulaCompareRequest(BaseModel):
+    original: Dict[str, Dict[str, Any]]
+    modified: Dict[str, Dict[str, Any]]
+
+
 @app.get("/")
 async def root():
     return {
@@ -104,9 +119,9 @@ async def add_synonym(synonym: str, canonical: str):
 
 
 @app.post("/api/symptoms/normalize")
-async def normalize_symptoms(symptoms: List[str]):
-    normalized = symptom_module.normalize_symptoms(symptoms)
-    return {"original": symptoms, "normalized": normalized}
+async def normalize_symptoms(request: NormalizeRequest):
+    normalized = symptom_module.normalize_symptoms(request.symptoms)
+    return {"original": request.symptoms, "normalized": normalized}
 
 
 @app.get("/api/tongue-presets")

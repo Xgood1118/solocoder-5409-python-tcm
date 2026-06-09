@@ -189,10 +189,10 @@ def calculate_pattern_scores(
     custom_weights: Optional[Dict[str, Dict[str, float]]] = None,
     custom_thresholds: Optional[Dict[str, float]] = None,
 ) -> List[Dict]:
-    all_symptoms = list(symptoms)
-    if tongue:
+    all_symptoms = list(dict.fromkeys(symptoms))
+    if tongue and tongue not in all_symptoms:
         all_symptoms.append(tongue)
-    if pulse:
+    if pulse and pulse not in all_symptoms:
         all_symptoms.append(pulse)
 
     results = []
@@ -200,6 +200,7 @@ def calculate_pattern_scores(
     for pattern_name, pattern_info in PATTERNS.items():
         total_score = 0.0
         matched_symptoms = []
+        seen_symptoms = set()
 
         weights = pattern_info["symptom_weights"].copy()
         if custom_weights and pattern_name in custom_weights:
@@ -210,13 +211,14 @@ def calculate_pattern_scores(
             threshold = custom_thresholds[pattern_name]
 
         for symptom in all_symptoms:
-            if symptom in weights:
+            if symptom in weights and symptom not in seen_symptoms:
                 score = weights[symptom]
                 total_score += score
                 matched_symptoms.append({
                     "symptom": symptom,
                     "score": score,
                 })
+                seen_symptoms.add(symptom)
 
         boost_score = 0.0
         boost_info = None
